@@ -59,3 +59,17 @@
 ```  SELECT * FROM EMP WHERE EMP_ID = 10000;
 ```
 ![](/diagrams/heap1.png)
+
+### Query with index
+``` 
+SELECT * FROM EMP WHERE EMP_ID = 10000;
+```
+
+![](/diagrams/heap2.png)
+```
+10000 (1000,333)
+Fetch page 333, and pull row 10000
+```
+
+![](/diagrams/heap3.png)
+
