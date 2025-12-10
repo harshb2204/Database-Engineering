@@ -93,3 +93,11 @@ Postgres immediately went to the table and immediately got the result. This can 
 - Thats why when you want to do a count and you dont actually care about the actual number like you are counting number of likes on insta. Use this and dont use select count, it will kill your performance
 ![](/images/explain2.png)
 
+![](/images/explain3.png)
+- here we do some work (it is trivial as we indexed g here) but we can see the difference.
+![](/images/explain4.png)
+- here as we can see work is done and the cost has increased.
+
+
+![](/images/explain5.png)
+- here the width is 4 bytes. id is by default int
