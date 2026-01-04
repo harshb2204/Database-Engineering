@@ -62,3 +62,34 @@ SELECT * FROM T WHERE F1 = 1 AND F2 = 4;
 - **High Selectivity**: If `F1` is a primary key or a highly unique column, the index lookup might return only a handful of rows, making it faster to just fetch and filter them rather than scanning a second index.
 - **Low Cost**: Accessing a second index involves additional I/O. If the first index already narrows the results down significantly, the overhead of the second index scan might be higher than the cost of simple filtering.
 - **Statistics**: Database statistics might indicate that `F1=1` is very rare, whereas `F2=4` is very common.
+
+## Case 3: No Indexes Used (Full Table Scan)
+
+In some cases, the database engine may choose to ignore all available indexes and perform a **Full Table Scan (Sequential Scan)**.
+
+
+
+### Why the Database Might Choose a Full Table Scan:
+- **High Data Volume Retrieval**: If the database decides the search will yield so many rows (e.g., 80% of the table) that jumping between the index and the table (lookup) becomes more expensive than just reading the whole table linearly.
+- **Table Statistics are Outdated**: This is a critical factor! If the database doesn't have an accurate count or distribution of data, it cannot make an informed decision on which index (if any) to use.
+
+---
+
+### The Importance of Table Statistics
+
+When working with large-scale databases, the "freshness" of your table statistics can make or break performance. 
+
+
+> "Imagine you bring in a fresh, empty table. The database knows it's empty, so its statistics are near zero. You insert a few rows—say, three—and the table's internal metadata is updated asynchronously. It thinks, 'Okay, I only have three rows.'
+>
+> Then, you perform a bulk operation and insert **300 million rows**. If you immediately run a query after that insertion without updating the statistics, the database will look at its old metadata and think: 'Oh, this table only has three rows! It's much faster to just scan it fully.'
+>
+> In reality, it will end up performing a full table scan on 300 million rows, which can be devastating for performance. 
+>
+> Always ensure you update your statistics after massive data changes or after a fresh bulk load before running queries:
+> - **PostgreSQL**: Use `ANALYZE` (and `VACUUM` / `VACUUM FULL` to clean up garbage).
+> - **Oracle**: Use `GATHER_SCHEMA_STATS` or `GATHER_TABLE_STATS`.
+> - **SQL Server**: Use `UPDATE STATISTICS`.
+> - **MySQL**: Use `ANALYZE TABLE`."
+
+
