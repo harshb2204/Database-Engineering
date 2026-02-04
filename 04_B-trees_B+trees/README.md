@@ -33,14 +33,56 @@
 - If the key is **greater than all keys** in the node, follow the **rightmost** child pointer.
 - Repeat this process in the child node until you either find the key in a leaf node or reach a null pointer (key not present).
 
-## Inserting a key into a B-Tree (high level)
-
-- First, **search down the tree** to the leaf node where the new key should go (using the find procedure above).
-- Insert the key into the leaf node in **sorted order**.
-- If the node now has **at most (m - 1) keys**, we are done.
-- If the node has **m keys (overflow)**:
-  - Split the node into **two nodes**, each with about half the keys.
-  - **Promote** the middle key to the parent node and adjust child pointers.
-  - If the parent also overflows, **repeat the split upward**; if the root overflows, a new root is created and the tree height increases by 1.
 
 
+## Limitation B-Tree
+
+- **Elements in all nodes store both the key and the value**
+  - In a B-Tree, every node (root, internal, and leaf) contains both the key and its associated data pointer/value.
+  - This means internal nodes are not just routing information—they also store actual data, making them larger.
+  - Example: In the diagram above, the root node contains "4:704" and "8:802", where both the key (4, 8) and the TID pointer (704, 802) are stored together.
+
+- **Internal nodes take more space thus require more IO and can slow down traversal**
+  - Because internal nodes store both keys and values, each internal node occupies more disk space (more bytes per node).
+  - When traversing the tree, you need to load larger nodes from disk into memory, which means:
+    - More disk I/O operations (reading larger pages)
+    - Fewer nodes can fit in the same memory buffer
+    - Slower traversal because you're reading more data than necessary just to navigate the tree structure
+  - Since internal nodes are only used for navigation, storing data in them is wasteful.
+
+- **Range queries are slow because of random access (give me all values 1-5)**
+  - In a B-Tree, data pointers are scattered across different levels (root, internal nodes, and leaf nodes).
+  - To retrieve a range of values (e.g., all records with IDs 1-5), you must:
+    - Traverse to find each key individually
+    - Jump between different nodes at different levels (random disk access)
+    - Cannot efficiently scan consecutive leaf nodes because data is not only in leaves
+  - This results in many random disk seeks, which are much slower than sequential reads.
+
+
+- **Hard to fit internal nodes in memory**
+  - Because internal nodes contain both keys and values, they are larger than necessary.
+  - With limited memory buffers, fewer internal nodes can be cached, leading to:
+    - More frequent disk reads during tree traversal
+    - Reduced cache hit rates
+    - Overall slower query performance
+  - B+Tree's smaller internal nodes (keys only) allow more nodes to fit in memory, improving performance.
+
+
+  ## B+Tree
+- Exactly like B-Tree but only stores keys in internal
+nodes
+- Values are only stored in leaf nodes
+- Internal nodes are smaller since they only store
+keys and they can fit more elements
+- Leaf nodes are “linked” so once you find a key
+you can find all values before and after that key.
+- Great for range queries
+
+![](/diagrams/bplustree.png)
+B+Tree & DBMS Considerations
+- Cost of leaf pointer (cheap)
+- 1 Node fits a DBMS page (most DBMS)
+- Can fit internal nodes easily in memory for fast
+-raversal
+- Leaf nodes can live in data files in the heap
+- Most DBMS systems use B+Tree 
