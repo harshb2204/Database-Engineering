@@ -75,3 +75,32 @@ The queries above implement **Range Partitioning** on the `g` (grade) column. He
     *   **`g80100`**: Stores values where `80 <= g < 100`.
 
 By using `(like grades_parts including indexes)`, each partition table is guaranteed to have the exact same structure and indexes as the parent. The `ATTACH PARTITION` command is the final step that tells the database exactly which rows belong to which physical table. Once attached, any query or insert onto `grades_parts` will be automatically routed to the correct partition.
+
+### Data Migration & Verification
+Once the partitions are attached, we can migrate the data from the original table to the partitioned table and verify the routing logic.
+
+```sql
+-- Step 4: Migrate data from the original table to the partitioned table
+insert into grades_parts select * from grades_org;
+-- Result: INSERT 0 10000001 (PostgreSQL automatically routes 10M+ rows into correct partitions)
+
+-- Step 5: Verify the total count in the master table
+-- This will aggregate counts from ALL attached partitions
+select count(*) from grades_parts;
+-- Result: 10000001
+
+-- Step 6: Verify the maximum value in the master table
+select max(g) from grades_parts;
+-- Result: 99
+
+-- Step 7: Verify data routing by querying a specific partition directly
+-- This proves that data was correctly limited by the range [0, 35)
+select max(g) from g0035;
+-- Result: 34
+```
+
+### creating index
+```sql
+create index grades_parts_idx on grades_parts(g);
+```
+This creates an index on each partition 
