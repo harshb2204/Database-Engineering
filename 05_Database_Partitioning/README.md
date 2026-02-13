@@ -110,3 +110,8 @@ This creates an index on each partition table.
 - **Sequential scan vs scattered index scan**: Large scans on a single partition can be faster than scattered index lookups on one giant table.
 - **Easy bulk loading**: You can load data into a separate table and then simply `ATTACH PARTITION`.
 - **Archive old data**: Barely accessed data can be archived or moved to cheaper storage by manipulating partitions.
+
+### Cons of Partitioning
+- **Updates that move rows from a partition to another**: High-overhead operations that can be slow or fail sometimes.
+- **Inefficient queries**: Queries that don't use the partition key could accidentally scan all partitions, resulting in slower performance than a single table.
+- **Schema changes can be challenging**: Modifying the table structure across all partitions can be complex (though many modern DBMS manage this automatically).
