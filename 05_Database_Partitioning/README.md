@@ -103,4 +103,10 @@ select max(g) from g0035;
 ```sql
 create index grades_parts_idx on grades_parts(g);
 ```
-This creates an index on each partition 
+This creates an index on each partition table.
+
+### Pros of Partitioning
+- **Improves query performance** when accessing a single partition.
+- **Sequential scan vs scattered index scan**: Large scans on a single partition can be faster than scattered index lookups on one giant table.
+- **Easy bulk loading**: You can load data into a separate table and then simply `ATTACH PARTITION`.
+- **Archive old data**: Barely accessed data can be archived or moved to cheaper storage by manipulating partitions.
